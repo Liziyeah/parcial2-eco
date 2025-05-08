@@ -1,3 +1,5 @@
+import { updatePlayerScore } from "../db/players.db";
+
 const playersDb = require("../db/players.db");
 const {
   emitEvent,
@@ -12,6 +14,7 @@ const joinGame = async (req, res) => {
     const gameData = playersDb.getGameData();
     emitEvent("userJoined", gameData);
 
+    emitEvent("updatePlayers", gameData);
     res.status(200).json({ success: true, players: gameData.players });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -82,6 +85,8 @@ const selectPolo = async (req, res) => {
     const allPlayers = playersDb.getAllPlayers();
 
     if (poloSelected.role === "polo-especial") {
+      //si marco atrapa a un polo especial, gana 50 puntos
+      playersDb.updatePlayerScore(socketId, 50);
       // Notify all players that the game is over
       allPlayers.forEach((player) => {
         emitToSpecificClient(player.id, "notifyGameOver", {
@@ -89,14 +94,43 @@ const selectPolo = async (req, res) => {
         });
       });
     } else {
+      //si marco atrapa a un polo normal, pierde 10 puntos
+      playersDb.updatePlayerScore(socketId, -10);
       allPlayers.forEach((player) => {
         emitToSpecificClient(player.id, "notifyGameOver", {
           message: `El marco ${myUser.nickname} ha perdido`,
         });
       });
     }
+    //se emite un evento para actualizar la results scren
+    const gameData = playersDb.getGameData();
+    emitEvent("updateResultsScreen", gameData);
 
     res.status(200).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const disconnectPlayer = async (req, res) => {
+  try {
+    const { socketId } = req.body;
+    playersDb.removePlayer(socketId);
+
+    // Emitir evento para actualizar la pantalla de resultados
+    const gameData = playersDb.getGameData();
+    emitEvent("updateResultsScreen", gameData);
+
+    res.status(200).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const getScores = async (req, res) => {
+  try {
+    const players = playersDb.getAllPlayers();
+    res.status(200).json(players);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -108,4 +142,6 @@ module.exports = {
   notifyMarco,
   notifyPolo,
   selectPolo,
+  getScores,
+  disconnectPlayer,
 };
