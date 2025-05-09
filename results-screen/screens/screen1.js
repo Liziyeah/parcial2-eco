@@ -1,14 +1,99 @@
-import { navigateTo, socket } from "../app.js";
+import { navigateTo } from "../app.js";
 
-export default function renderScreen1() {
+export default function renderScreen1(data) {
   const app = document.getElementById("app");
-  app.innerHTML = `
-      <div id="screen1">
-        <h2>Screen 1</h2>
-        <p>Hello from screen 1</p>
+
+  // Ordenar jugadores por puntuación (de mayor a menor)
+  const sortedPlayers = [...data.players].sort(
+    (a, b) => (b.score || 0) - (a.score || 0)
+  );
+
+  // Generar el HTML de la pantalla
+  let html = `
+    <div class="leaderboard-container">
+      <h1>Marco Polo - Tabla de Puntuaciones</h1>
+      <div class="players-connected">
+        <p><strong>Jugadores conectados:</strong> ${sortedPlayers.length}</p>
       </div>
-      `;
-  socket.on("next-screen", (data) => {
-    navigateTo("/screen2", { name: "Hola" });
+      <table>
+        <thead>
+          <tr>
+            <th>Posición</th>
+            <th>Jugador</th>
+            <th>Puntuación</th>
+            <th>Rol actual</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  sortedPlayers.forEach((player, index) => {
+    const scoreClass =
+      (player.score || 0) < 0 ? "negative-score" : "positive-score";
+
+    html += `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${player.nickname}</td>
+        <td class="${scoreClass}">${player.score || 0}</td>
+        <td>${player.role || "Sin asignar"}</td>
+        <td><button class="view-details-btn" data-player-id="${
+          player.id
+        }">Ver detalles</button></td>
+      </tr>
+    `;
   });
+
+  html += `
+        </tbody>
+      </table>
+      <div class="refresh-section">
+        <button id="refresh-btn">Actualizar datos</button>
+      </div>
+    </div>
+  `;
+
+  app.innerHTML = html;
+
+  // Añadir escuchadores de eventos para los botones de detalles
+  const detailButtons = document.querySelectorAll(".view-details-btn");
+  detailButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const playerId = button.getAttribute("data-player-id");
+      const playerData = data.players.find((p) => p.id === playerId);
+
+      if (playerData) {
+        navigateTo("/playerDetail", {
+          player: playerData,
+          allPlayers: data.players,
+        });
+      }
+    });
+  });
+
+  // Añadir escuchador para el botón de actualizar
+  const refreshButton = document.getElementById("refresh-btn");
+  if (refreshButton) {
+    refreshButton.addEventListener("click", async () => {
+      try {
+        const BASE_URL = "http://localhost:5050";
+        const response = await fetch(`${BASE_URL}/api/game/scores`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const players = await response.json();
+        navigateTo("/", { players });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    });
+  }
 }

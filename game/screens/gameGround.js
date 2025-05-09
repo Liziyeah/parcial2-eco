@@ -7,11 +7,26 @@ export default function renderGameGround(data) {
       <h2 id="game-nickname-display">${data.nickname}</h2>
       <p>Tu rol es:</p>
       <h2 id="role-display">${data.role}</h2>
+      <div id="player-score">Cargando puntuación...</div>
       <h2 id="shout-display"></h2>
       <div id="pool-players"></div>
       <button id="shout-button">Gritar ${data.role}</button>
     </div>
   `;
+
+  // Estilo para puntuaciones
+  const styleElement = document.createElement("style");
+  styleElement.textContent = `
+    .negative-score {
+      color: red;
+      font-weight: bold;
+    }
+    .positive-score {
+      color: green;
+      font-weight: bold;
+    }
+  `;
+  document.head.appendChild(styleElement);
 
   const nickname = data.nickname;
   const polos = [];
@@ -19,6 +34,26 @@ export default function renderGameGround(data) {
   const shoutbtn = document.getElementById("shout-button");
   const shoutDisplay = document.getElementById("shout-display");
   const container = document.getElementById("pool-players");
+  const scoreDisplay = document.getElementById("player-score");
+
+  // Obtener y mostrar la puntuación actual
+  const updateScoreDisplay = async () => {
+    try {
+      const players = await makeRequest("/api/game/scores", "GET");
+      const player = players.find((p) => p.nickname === nickname);
+      const score = player ? player.score : 0;
+      const scoreClass = score < 0 ? "negative-score" : "positive-score";
+      scoreDisplay.innerHTML = `
+        <p>Tu puntuación: <span class="${scoreClass}">${score}</span></p>
+      `;
+    } catch (error) {
+      console.error("Error al obtener puntuación:", error);
+      scoreDisplay.innerHTML = "<p>Error al cargar puntuación</p>";
+    }
+  };
+
+  // Actualizar puntuación inicial
+  updateScoreDisplay();
 
   if (myRole !== "marco") {
     shoutbtn.style.display = "none";

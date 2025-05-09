@@ -94,16 +94,6 @@ const getPlayerScore = (socketId) => {
   return player ? player.score || 0 : 0;
 };
 
-//elimina un jugador del juego
-const removePlayer = (socketId) => {
-  const index = players.findIndex((player) => player.id === socketId);
-  if (index !== -1) {
-    players.splice(index, 1);
-    return true;
-  }
-  return false;
-};
-
 module.exports = {
   getAllPlayers,
   addPlayer,
@@ -114,5 +104,4 @@ module.exports = {
   resetGame,
   updatePlayerScore,
   getPlayerScore,
-  removePlayer,
 };
