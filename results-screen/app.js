@@ -18,7 +18,7 @@ function renderRoute(currentRoute) {
       break;
     case "/playerDetail":
       clearScripts();
-      renderScreen2(currentRoute?.data);
+      renderDetailView(currentRoute?.data);
       break;
     default:
       const app = document.getElementById("app");
