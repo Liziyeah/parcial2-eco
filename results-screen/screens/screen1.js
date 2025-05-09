@@ -3,36 +3,23 @@ import { navigateTo } from "../app.js";
 export default function renderScreen1(data) {
   const app = document.getElementById("app");
 
-  // Si no hay datos, mostrar mensaje de espera
-  if (!data || !data.players || data.players.length === 0) {
-    app.innerHTML = `
-      <div class="waiting-message">
-        <h2>Tabla de Puntuaciones</h2>
-        <p>Esperando a que se conecten jugadores...</p>
-      </div>
-    `;
-    return;
-  }
-
   // Ordenar jugadores por puntuación (de mayor a menor)
-  const sortedPlayers = [...data.players].sort(
+  const sortedPlayers = [...(data.players || [])].sort(
     (a, b) => (b.score || 0) - (a.score || 0)
   );
 
   // Generar el HTML de la pantalla
   let html = `
     <div class="leaderboard-container">
-      <h1>Marco Polo - Tabla de Puntuaciones</h1>
+      <h1>Tabla de resultados</h1>
       <div class="players-connected">
         <p><strong>Jugadores conectados:</strong> ${sortedPlayers.length}</p>
       </div>
       <table>
         <thead>
           <tr>
-            <th>Posición</th>
             <th>Jugador</th>
             <th>Puntuación</th>
-            <th>Rol actual</th>
           </tr>
         </thead>
         <tbody>

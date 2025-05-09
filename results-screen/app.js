@@ -1,5 +1,6 @@
 import renderScreen1 from "./screens/screen1.js";
 import renderScreen2 from "./screens/screen2.js";
+import renderWinnerScreen from "./screens/winnerScreen.js";
 
 const socket = io("/", { path: "/real-time" });
 
@@ -16,9 +17,13 @@ function renderRoute(currentRoute) {
       clearScripts();
       renderScreen1(currentRoute?.data);
       break;
-    case "/playerDetail":
+    case "/screen2":
       clearScripts();
-      renderDetailView(currentRoute?.data);
+      renderScreen2(currentRoute?.data);
+      break;
+    case "/winner":
+      clearScripts();
+      renderWinnerScreen(currentRoute?.data);
       break;
     default:
       const app = document.getElementById("app");
@@ -36,10 +41,20 @@ socket.on("updateResultsScreen", (data) => {
   // Si estamos en la pantalla principal, actualizamos los datos
   if (route.path === "/") {
     navigateTo("/", data);
-  } else {
+  } else if (route.path === "/playerDetail") {
     // Si estamos viendo detalles, mantenemos los detalles pero actualizamos los datos
-    route.data = { ...route.data, ...data };
+    route.data = {
+      ...route.data,
+      player: data.players.find((p) => p.id === route.data.player.id),
+      allPlayers: data.players,
+    };
+    renderRoute(route);
   }
+});
+
+// Escuchar si hay un ganador
+socket.on("gameWinner", (data) => {
+  navigateTo("/winner", data);
 });
 
 // Realizar una petición inicial para obtener los datos actuales
@@ -65,7 +80,6 @@ async function fetchInitialData() {
   }
 }
 
-// Cargar datos iniciales
 fetchInitialData();
 
 export { navigateTo, socket };
