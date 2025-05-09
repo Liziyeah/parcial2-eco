@@ -85,20 +85,15 @@ const selectPolo = async (req, res) => {
     const allPlayers = playersDb.getAllPlayers();
 
     if (poloSelected.role === "polo-especial") {
-      // Marco atrapó a un Polo Especial: +50 puntos para Marco
       playersDb.updatePlayerScore(socketId, 50);
-
-      // Polo Especial atrapado: -10 puntos
       playersDb.updatePlayerScore(poloId, -10);
 
-      // Notify all players that the game is over
       allPlayers.forEach((player) => {
         emitToSpecificClient(player.id, "notifyGameOver", {
           message: `El marco ${myUser.nickname} ha ganado, ${poloSelected.nickname} ha sido capturado`,
         });
       });
     } else {
-      // Marco no atrapó a un Polo Especial: -10 puntos
       playersDb.updatePlayerScore(socketId, -10);
 
       allPlayers.forEach((player) => {
@@ -107,8 +102,6 @@ const selectPolo = async (req, res) => {
         });
       });
     }
-
-    // Premiar a los Polo especial que no fueron atrapados (+10 puntos)
     const specialPolos = allPlayers.filter(
       (player) => player.role === "polo-especial" && player.id !== poloId
     );
@@ -116,15 +109,11 @@ const selectPolo = async (req, res) => {
     specialPolos.forEach((player) => {
       playersDb.updatePlayerScore(player.id, 10);
     });
-
-    // Verificar si algún jugador alcanzó 100+ puntos
     const winner = allPlayers.find((player) => player.score >= 100);
-
-    // Emitir evento para actualizar la pantalla de resultados
     const gameData = playersDb.getGameData();
 
     if (winner) {
-      // Si hay un ganador, emitir evento especial
+      // cuando se hace la validacion de q un jugador alcanzo los +100puntos, emitir evento especial
       emitEvent("gameWinner", {
         winner: winner,
         players: gameData.players,

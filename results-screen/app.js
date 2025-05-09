@@ -36,13 +36,10 @@ function navigateTo(path, data) {
   renderRoute(route);
 }
 
-// Escuchar actualizaciones de la pantalla de resultados
 socket.on("updateResultsScreen", (data) => {
-  // Si estamos en la pantalla principal, actualizamos los datos
   if (route.path === "/") {
     navigateTo("/", data);
   } else if (route.path === "/playerDetail") {
-    // Si estamos viendo detalles, mantenemos los detalles pero actualizamos los datos
     route.data = {
       ...route.data,
       player: data.players.find((p) => p.id === route.data.player.id),
@@ -52,12 +49,11 @@ socket.on("updateResultsScreen", (data) => {
   }
 });
 
-// Escuchar si hay un ganador
 socket.on("gameWinner", (data) => {
   navigateTo("/winner", data);
 });
 
-// Realizar una petición inicial para obtener los datos actuales
+//obtengo los datos actules
 async function fetchInitialData() {
   try {
     const BASE_URL = "http://localhost:5050";

@@ -3,7 +3,6 @@ import { navigateTo } from "../app.js";
 export default function renderWinnerScreen(data) {
   const app = document.getElementById("app");
 
-  // Verificar que se recibieron datos
   if (!data || !data.winner || !data.players) {
     app.innerHTML = `
       <div class="error-container">
@@ -22,13 +21,10 @@ export default function renderWinnerScreen(data) {
 
     return;
   }
-
-  // Ordenar jugadores por puntuación (de mayor a menor)
   const sortedPlayers = [...data.players].sort(
     (a, b) => (b.score || 0) - (a.score || 0)
   );
 
-  // Generar el HTML de la pantalla de ganador
   let html = `
     <div class="winner-container">
       <h1>Hay un nuevo ganador :D!</h1>
@@ -76,8 +72,6 @@ export default function renderWinnerScreen(data) {
 
   app.innerHTML = html;
   document.head.appendChild(styleElement);
-
-  // Añadir escuchador para el botón de volver
   const backButton = document.getElementById("back-btn");
   if (backButton) {
     backButton.addEventListener("click", () => {

@@ -3,7 +3,6 @@ import { navigateTo } from "../app.js";
 export default function renderScreen2(data) {
   const app = document.getElementById("app");
 
-  // Si no hay datos del jugador, volver a la pantalla principal
   if (!data || !data.player) {
     navigateTo("/", { players: data.allPlayers || [] });
     return;
@@ -13,7 +12,6 @@ export default function renderScreen2(data) {
   const scoreClass =
     (player.score || 0) < 0 ? "negative-score" : "positive-score";
 
-  // Generar el HTML de la vista de detalles
   let html = `
     <div class="player-detail-container">
       <h1>Detalles del Jugador</h1>
@@ -66,7 +64,6 @@ export default function renderScreen2(data) {
 
   app.innerHTML = html;
 
-  // Añadir escuchador para el botón de volver
   const backButton = document.getElementById("back-btn");
   if (backButton) {
     backButton.addEventListener("click", () => {

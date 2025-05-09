@@ -3,7 +3,6 @@ import { navigateTo } from "../app.js";
 export default function renderScreen1(data) {
   const app = document.getElementById("app");
 
-  // Ordenar jugadores por puntuación (de mayor a menor)
   const sortedPlayers = [...(data.players || [])].sort(
     (a, b) => (b.score || 0) - (a.score || 0)
   );
@@ -53,7 +52,6 @@ export default function renderScreen1(data) {
 
   app.innerHTML = html;
 
-  // Añadir escuchadores de eventos para los botones de detalles
   const detailButtons = document.querySelectorAll(".view-details-btn");
   detailButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -69,7 +67,6 @@ export default function renderScreen1(data) {
     });
   });
 
-  // Añadir escuchador para el botón de actualizar
   const refreshButton = document.getElementById("refresh-btn");
   if (refreshButton) {
     refreshButton.addEventListener("click", async () => {

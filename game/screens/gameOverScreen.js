@@ -3,7 +3,6 @@ import { makeRequest, navigateTo, socket } from "../app.js";
 export default function renderGameOverScreen(data) {
   const app = document.getElementById("app");
 
-  // Obtener la puntuación actual del jugador
   const getPlayerScore = async (nickname) => {
     try {
       const result = await makeRequest("/api/game/scores", "GET");
@@ -15,7 +14,6 @@ export default function renderGameOverScreen(data) {
     }
   };
 
-  // Renderizar inicialmente la pantalla
   const renderInitialScreen = () => {
     app.innerHTML = `
       <div id="game-over">
@@ -27,7 +25,6 @@ export default function renderGameOverScreen(data) {
     `;
   };
 
-  // Actualizar la puntuación en la pantalla
   const updateScoreDisplay = async () => {
     const score = await getPlayerScore(data.nickname);
     const playerScoreElement = document.getElementById("player-score");
@@ -39,23 +36,8 @@ export default function renderGameOverScreen(data) {
     }
   };
 
-  // Inicializar la pantalla
   renderInitialScreen();
   updateScoreDisplay();
-
-  // Añadir estilos CSS a la pantalla
-  const styleElement = document.createElement("style");
-  styleElement.textContent = `
-    .negative-score {
-      color: red;
-      font-weight: bold;
-    }
-    .positive-score {
-      color: green;
-      font-weight: bold;
-    }
-  `;
-  document.head.appendChild(styleElement);
 
   const restartButton = document.getElementById("restart-button");
 
